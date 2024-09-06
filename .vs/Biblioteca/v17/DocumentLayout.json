@@ -1,0 +1,85 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Biblioteca\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{D2E5AD91-1C8B-4E9C-A2BD-848B7783B2DA}|Biblioteca\\Biblioteca.csproj|d:\\biblioteca\\biblioteca\\controllers\\solicitudcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D2E5AD91-1C8B-4E9C-A2BD-848B7783B2DA}|Biblioteca\\Biblioteca.csproj|solutionrelative:biblioteca\\controllers\\solicitudcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D2E5AD91-1C8B-4E9C-A2BD-848B7783B2DA}|Biblioteca\\Biblioteca.csproj|d:\\biblioteca\\biblioteca\\controllers\\bookcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D2E5AD91-1C8B-4E9C-A2BD-848B7783B2DA}|Biblioteca\\Biblioteca.csproj|solutionrelative:biblioteca\\controllers\\bookcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D2E5AD91-1C8B-4E9C-A2BD-848B7783B2DA}|Biblioteca\\Biblioteca.csproj|d:\\biblioteca\\biblioteca\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D2E5AD91-1C8B-4E9C-A2BD-848B7783B2DA}|Biblioteca\\Biblioteca.csproj|solutionrelative:biblioteca\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D2E5AD91-1C8B-4E9C-A2BD-848B7783B2DA}|Biblioteca\\Biblioteca.csproj|d:\\biblioteca\\biblioteca\\dtos\\solicituddto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D2E5AD91-1C8B-4E9C-A2BD-848B7783B2DA}|Biblioteca\\Biblioteca.csproj|solutionrelative:biblioteca\\dtos\\solicituddto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "UserController.cs",
+              "DocumentMoniker": "D:\\Biblioteca\\Biblioteca\\Controllers\\UserController.cs",
+              "RelativeDocumentMoniker": "Biblioteca\\Controllers\\UserController.cs",
+              "ToolTip": "D:\\Biblioteca\\Biblioteca\\Controllers\\UserController.cs",
+              "RelativeToolTip": "Biblioteca\\Controllers\\UserController.cs",
+              "ViewState": "AgIAAI8AAAAAAAAAAAAowJYAAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-06T02:51:17.856Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "SolicitudController.cs",
+              "DocumentMoniker": "D:\\Biblioteca\\Biblioteca\\Controllers\\SolicitudController.cs",
+              "RelativeDocumentMoniker": "Biblioteca\\Controllers\\SolicitudController.cs",
+              "ToolTip": "D:\\Biblioteca\\Biblioteca\\Controllers\\SolicitudController.cs",
+              "RelativeToolTip": "Biblioteca\\Controllers\\SolicitudController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-06T02:22:57.838Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "SolicitudDTO.cs",
+              "DocumentMoniker": "D:\\Biblioteca\\Biblioteca\\DTOs\\SolicitudDTO.cs",
+              "RelativeDocumentMoniker": "Biblioteca\\DTOs\\SolicitudDTO.cs",
+              "ToolTip": "D:\\Biblioteca\\Biblioteca\\DTOs\\SolicitudDTO.cs",
+              "RelativeToolTip": "Biblioteca\\DTOs\\SolicitudDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-06T02:21:07.067Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "BookController.cs",
+              "DocumentMoniker": "D:\\Biblioteca\\Biblioteca\\Controllers\\BookController.cs",
+              "RelativeDocumentMoniker": "Biblioteca\\Controllers\\BookController.cs",
+              "ToolTip": "D:\\Biblioteca\\Biblioteca\\Controllers\\BookController.cs",
+              "RelativeToolTip": "Biblioteca\\Controllers\\BookController.cs",
+              "ViewState": "AgIAABIAAAAAAAAAAAAuwCEAAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-05T17:31:52.176Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
