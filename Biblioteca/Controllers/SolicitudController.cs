@@ -23,7 +23,6 @@ namespace Biblioteca.Controllers
         [HttpPost("crearSolicitud")]
         public async Task<IActionResult> CrearSolicitud([FromBody] SolicitudDTO solicitudDto)
         {
-            // Verificar si el usuario existe por el UserName en la solicitud
             var user = await _context.User.SingleOrDefaultAsync(u => u.UserName == solicitudDto.UserName);
 
             if (user == null)
@@ -31,7 +30,6 @@ namespace Biblioteca.Controllers
                 return BadRequest(new { Success = false, Message = "El usuario no existe." });
             }
 
-            // Verificar si existe el libro por el nombre en la solicitud
             var movimientoLibro = await _context.MovimientoLibro
                 .Include(m => m.Book)
                 .FirstOrDefaultAsync(m => m.Book.Tittle == solicitudDto.Book);
@@ -43,10 +41,8 @@ namespace Biblioteca.Controllers
 
             if (solicitudDto.Tipo == "Pedir")
             {
-                // Verificar si hay saldo disponible
                 if (movimientoLibro.Saldo > 0 && movimientoLibro.Book.Cantidad > 0)
                 {
-                    // Restar 1 al saldo y a la cantidad del libro
                     movimientoLibro.Saldo -= 1;
                     movimientoLibro.Book.Cantidad -= 1;
                 }
@@ -57,33 +53,28 @@ namespace Biblioteca.Controllers
             }
             else if (solicitudDto.Tipo == "Regresar")
             {
-                // Verificar si el usuario ha realizado previamente una solicitud de tipo "Pedir" para el mismo libro
                 var solicitudPedirPrevia = await _context.Solicitud
                     .Where(s => s.UserName == solicitudDto.UserName &&
                                 s.Book == solicitudDto.Book &&
                                 s.Tipo == "Pedir")
                     .ToListAsync();
 
-                // Verificar si ya hay una solicitud de tipo "Regresar" correspondiente
                 var solicitudRegresarPrevia = await _context.Solicitud
                     .Where(s => s.UserName == solicitudDto.UserName &&
                                 s.Book == solicitudDto.Book &&
                                 s.Tipo == "Regresar")
                     .ToListAsync();
 
-                // Si el usuario nunca ha hecho un "Pedir" para este libro
                 if (!solicitudPedirPrevia.Any())
                 {
                     return BadRequest(new { Success = false, Message = "No puedes regresar un libro que no has pedido." });
                 }
 
-                // Si ya se han hecho más "Regresar" que "Pedir" (lo cual no debería ser posible)
                 if (solicitudRegresarPrevia.Count >= solicitudPedirPrevia.Count)
                 {
                     return BadRequest(new { Success = false, Message = "No puedes regresar más libros de los que has pedido." });
                 }
 
-                // Incrementar el saldo y la cantidad del libro en 1
                 movimientoLibro.Saldo += 1;
                 movimientoLibro.Book.Cantidad += 1;
             }
@@ -92,26 +83,70 @@ namespace Biblioteca.Controllers
                 return BadRequest(new { Success = false, Message = "Tipo de solicitud no válido." });
             }
 
-            // Crear una nueva solicitud
             var nuevaSolicitud = new Solicitud
             {
                 SolicitudId = Guid.NewGuid(),
                 Tipo = solicitudDto.Tipo,
                 Date = DateTime.Now,
-                UserName = solicitudDto.UserName,  // El UserName que fue validado
-                Book = movimientoLibro.Book.Tittle,  // Guardar el título del libro
+                UserName = solicitudDto.UserName,
+                Book = movimientoLibro.Book.Tittle,
                 Observation = solicitudDto.Observation
             };
 
-            // Agregar la solicitud al contexto
             _context.Solicitud.Add(nuevaSolicitud);
-
-            // Guardar los cambios en la base de datos
             await _context.SaveChangesAsync();
 
             return Ok(new { Success = true, Message = "Solicitud procesada exitosamente." });
         }
 
+
+        [HttpGet("obtenerSolicitudes")]
+        public async Task<IActionResult> ObtenerSolicitudes([FromQuery] string tipo, [FromQuery] string userName)
+        {
+            if (string.IsNullOrEmpty(userName))
+            {
+                return BadRequest(new { Success = false, Message = "El nombre de usuario es requerido." });
+            }
+
+            var solicitudes = await _context.Solicitud
+                .Where(s => s.Tipo == tipo && s.UserName == userName)
+                .ToListAsync();
+
+            var librosPedidos = solicitudes
+                .GroupBy(s => s.Book)
+                .Select(g => new { Tittle = g.Key })
+                .ToList();
+
+            return Ok(new { Success = true, libros = librosPedidos });
+        }
+
+        [HttpGet("obtenerLibrosParaDevolver")]
+        public async Task<IActionResult> ObtenerLibrosParaDevolver([FromQuery] string userName)
+        {
+            if (string.IsNullOrEmpty(userName))
+            {
+                return BadRequest(new { Success = false, Message = "El nombre de usuario es requerido." });
+            }
+
+            // Obtener todas las solicitudes de tipo "Pedir" del usuario
+            var solicitudesPedir = await _context.Solicitud
+                .Where(s => s.Tipo == "Pedir" && s.UserName == userName)
+                .ToListAsync();
+
+            // Obtener todas las solicitudes de tipo "Regresar" del usuario
+            var solicitudesRegresar = await _context.Solicitud
+                .Where(s => s.Tipo == "Regresar" && s.UserName == userName)
+                .ToListAsync();
+
+            // Filtrar los libros que aún no han sido devueltos completamente
+            var librosParaDevolver = solicitudesPedir
+                .GroupBy(s => s.Book)
+                .Where(g => g.Count() > solicitudesRegresar.Count(sr => sr.Book == g.Key))
+                .Select(g => new { Title = g.Key })
+                .ToList();
+
+            return Ok(new { Success = true, libros = librosParaDevolver });
+        }
 
     }
 }

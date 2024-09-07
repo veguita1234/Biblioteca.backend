@@ -26,6 +26,27 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "Biblioteca.Controllers.BookController",
+    "Method": "UpdateBook",
+    "RelativePath": "api/Book/updatebook/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Guid",
+        "IsRequired": true
+      },
+      {
+        "Name": "bookDTO",
+        "Type": "Biblioteca.DTOs.BookDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Biblioteca.Controllers.MovimientoLibroController",
     "Method": "GetMovimientoLibros",
     "RelativePath": "api/MovimientoLibro/getMovimientoLibros",
@@ -47,6 +68,43 @@
         "Name": "solicitudDto",
         "Type": "Biblioteca.DTOs.SolicitudDTO",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Biblioteca.Controllers.SolicitudController",
+    "Method": "ObtenerLibrosParaDevolver",
+    "RelativePath": "api/Solicitud/obtenerLibrosParaDevolver",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userName",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Biblioteca.Controllers.SolicitudController",
+    "Method": "ObtenerSolicitudes",
+    "RelativePath": "api/Solicitud/obtenerSolicitudes",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "tipo",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "userName",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []

@@ -26,34 +26,53 @@ namespace Biblioteca.Controllers
         [HttpPost("addbook")]
         public async Task<IActionResult> AddBook(BookDTO bookDTO)
         {
-            // Convertir de BookDTO a la entidad Book
-            var book = new Book
+            // Validar el DTO
+            if (!ModelState.IsValid)
             {
-                BookId = Guid.NewGuid(),
-                Tittle = bookDTO.Tittle,
-                Author = bookDTO.Author,
-                Gender = bookDTO.Gender,
-                Year = bookDTO.Year,
-                Cantidad = bookDTO.Cantidad,
-            };
+                return BadRequest(new { Success = false, Message = "Datos no válidos.", Errors = ModelState.Values.SelectMany(v => v.Errors) });
+            }
 
-            // Guardar el libro en la base de datos
-            _context.Book.Add(book);
-            await _context.SaveChangesAsync();
-
-            // Crear un nuevo MovimientoLibro con el BookId y la Cantidad como Saldo
-            var movimientoLibro = new MovimientoLibro
+            try
             {
-                MovimientoLibroId = Guid.NewGuid(),
-                BookId = book.BookId,     // Usar el BookId del libro recién creado
-                Saldo = book.Cantidad     // Usar la cantidad del libro como saldo
-            };
+                // Convertir de BookDTO a la entidad Book
+                var book = new Book
+                {
+                    BookId = Guid.NewGuid(),
+                    Tittle = bookDTO.Tittle,
+                    Author = bookDTO.Author,
+                    Gender = bookDTO.Gender,
+                    Year = bookDTO.Year,
+                    Cantidad = bookDTO.Cantidad,
+                };
 
-            // Guardar el MovimientoLibro en la base de datos
-            _context.MovimientoLibro.Add(movimientoLibro);
-            await _context.SaveChangesAsync();
+                // Guardar el libro en la base de datos
+                _context.Book.Add(book);
+                await _context.SaveChangesAsync();
 
-            return Ok(new { Success = true, Message = "Registro exitoso y movimiento registrado.", BookId = book.BookId });
+                // Crear un nuevo MovimientoLibro con el BookId y la Cantidad como Saldo
+                var movimientoLibro = new MovimientoLibro
+                {
+                    MovimientoLibroId = Guid.NewGuid(),
+                    BookId = book.BookId,
+                    Saldo = book.Cantidad
+                };
+
+                // Guardar el MovimientoLibro en la base de datos
+                _context.MovimientoLibro.Add(movimientoLibro);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { Success = true, Message = "Registro exitoso y movimiento registrado.", BookId = book.BookId });
+            }
+            catch (Exception ex)
+            {
+                // Manejar cualquier error que pueda ocurrir
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    Success = false,
+                    Message = "Error al agregar el libro.",
+                    Error = ex.Message
+                });
+            }
         }
 
         [HttpGet("books")]
@@ -65,13 +84,12 @@ namespace Biblioteca.Controllers
 
                 var bookDto = books.Select(u => new BookDTO
                 {
-                    BookId=u.BookId,
-                    Tittle=u.Tittle,
+                    BookId = u.BookId,
+                    Tittle = u.Tittle,
                     Author = u.Author,
                     Gender = u.Gender,
                     Year = u.Year,
                     Cantidad = u.Cantidad,
-
                 }).ToList();
 
                 return Ok(new
@@ -86,10 +104,65 @@ namespace Biblioteca.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new
                 {
                     Success = false,
-                    Message = "Se produjo un error al obtener los usuarios.",
+                    Message = "Se produjo un error al obtener los libros.",
                     Error = ex.Message
                 });
             }
         }
+
+        [HttpPut("updatebook/{id}")]
+        public async Task<IActionResult> UpdateBook(Guid id, BookDTO bookDTO)
+        {
+            // Validar el DTO
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { Success = false, Message = "Datos no válidos.", Errors = ModelState.Values.SelectMany(v => v.Errors) });
+            }
+
+            try
+            {
+                // Buscar el libro por su BookId
+                var book = await _context.Book.FindAsync(id);
+
+                if (book == null)
+                {
+                    return NotFound(new { Success = false, Message = "Libro no encontrado." });
+                }
+
+                // Actualizar las propiedades del libro con los valores del DTO
+                book.Tittle = bookDTO.Tittle;
+                book.Author = bookDTO.Author;
+                book.Gender = bookDTO.Gender;
+                book.Year = bookDTO.Year;
+                book.Cantidad = bookDTO.Cantidad;
+
+                // Actualizar el libro en la base de datos
+                _context.Book.Update(book);
+
+                // Si deseas también actualizar el saldo en el MovimientoLibro relacionado
+                var movimientoLibro = await _context.MovimientoLibro.FirstOrDefaultAsync(m => m.BookId == id);
+                if (movimientoLibro != null)
+                {
+                    movimientoLibro.Saldo = bookDTO.Cantidad;
+                    _context.MovimientoLibro.Update(movimientoLibro);
+                }
+
+                // Guardar los cambios
+                await _context.SaveChangesAsync();
+
+                return Ok(new { Success = true, Message = "Libro actualizado exitosamente.", BookId = book.BookId });
+            }
+            catch (Exception ex)
+            {
+                // Manejar cualquier error que pueda ocurrir
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    Success = false,
+                    Message = "Error al actualizar el libro.",
+                    Error = ex.Message
+                });
+            }
+        }
+
     }
 }

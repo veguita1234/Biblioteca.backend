@@ -70,3 +70,4 @@ D:\Biblioteca\Biblioteca\obj\Debug\net8.0\refint\Biblioteca.dll
 D:\Biblioteca\Biblioteca\obj\Debug\net8.0\Biblioteca.pdb
 D:\Biblioteca\Biblioteca\obj\Debug\net8.0\Biblioteca.genruntimeconfig.cache
 D:\Biblioteca\Biblioteca\obj\Debug\net8.0\ref\Biblioteca.dll
+D:\Biblioteca\Biblioteca\obj\Debug\net8.0\Biblioteca.sourcelink.json

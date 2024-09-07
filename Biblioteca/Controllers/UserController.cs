@@ -112,6 +112,22 @@ namespace Biblioteca.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserDTO userDto)
         {
+            // Validar si el nombre ya está en uso
+            if (await _context.User.AnyAsync(u => u.Name == userDto.Name))
+                return BadRequest(new { Success = false, Field = "name", Message = "El nombre ya está en uso." });
+
+            // Validar si el email ya está en uso
+            if (await _context.User.AnyAsync(u => u.Email == userDto.Email))
+                return BadRequest(new { Success = false, Field = "email", Message = "El email ya está en uso." });
+
+            // Validar si el DNI ya está en uso
+            if (await _context.User.AnyAsync(u => u.DNI == userDto.DNI))
+                return BadRequest(new { Success = false, Field = "dni", Message = "El DNI ya está en uso." });
+
+            // Validar si el nombre de usuario ya está en uso
+            if (await _context.User.AnyAsync(u => u.UserName == userDto.UserName))
+                return BadRequest(new { Success = false, Field = "userName", Message = "El nombre de usuario ya está en uso." });
+
             // Convertir de UserDTO a la entidad User
             var user = new User
             {
@@ -122,7 +138,7 @@ namespace Biblioteca.Controllers
                 Email = userDto.Email,
                 DNI = userDto.DNI,
                 UserName = userDto.UserName,
-                Password = Encripter(userDto.Password) 
+                Password = Encripter(userDto.Password)
             };
 
             // Guardar el usuario en la base de datos
@@ -131,6 +147,9 @@ namespace Biblioteca.Controllers
 
             return Ok(new { Success = true, Message = "Registro exitoso." });
         }
+
+
+
 
         [HttpGet("users")]
         public async Task<IActionResult> GetAllUsers()
