@@ -21,13 +21,44 @@ namespace Biblioteca.Repositories
                 .ToTable("User");
 
             modelBuilder.Entity<Book>()
-                .ToTable("Book");
+        .ToTable("Book")
+        .HasKey(b => b.BookId);
+
+            modelBuilder.Entity<Book>()
+                .Property(b => b.BookId)
+                .HasColumnName("BookId");
+
+            modelBuilder.Entity<Book>()
+                .Property(b => b.Tittle)
+                .HasColumnName("Tittle");
+
+            modelBuilder.Entity<Book>()
+                .Property(b => b.Author)
+                .HasColumnName("Author");
+
+            modelBuilder.Entity<Book>()
+                .Property(b => b.Gender)
+                .HasColumnName("Gender");
+
+            modelBuilder.Entity<Book>()
+                .Property(b => b.Year)
+                .HasColumnName("Year");
+
+            modelBuilder.Entity<Book>()
+                .Property(b => b.Cantidad)
+                .HasColumnName("Cantidad");
+
+            modelBuilder.Entity<Book>()
+                .Property(b => b.Imagen)
+                .HasColumnName("Imagen");
 
             modelBuilder.Entity<Solicitud>()
                 .ToTable("Solicitud");
 
             modelBuilder.Entity<MovimientoLibro>()
-                .ToTable("MovimientoLibro");
+            .HasOne(m => m.Book)
+            .WithMany(b => b.MovimientoLibros)
+            .HasForeignKey(m => m.BookId);
         }
 
     }

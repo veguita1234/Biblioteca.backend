@@ -11,6 +11,7 @@ namespace Biblioteca.Repositories.Entities
         public string Gender { get; set; }
         public string Year { get; set; }
         public int Cantidad { get; set; }
+        public string Imagen { get; set; }
 
         public ICollection<MovimientoLibro> MovimientoLibros { get; set; }
     }

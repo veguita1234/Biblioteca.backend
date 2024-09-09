@@ -19,20 +19,29 @@ namespace Biblioteca.Controllers
             _context = context;
             _configuration = configuration;
         }
-
         [HttpPost("crearSolicitud")]
         public async Task<IActionResult> CrearSolicitud([FromBody] SolicitudDTO solicitudDto)
         {
-            var user = await _context.User.SingleOrDefaultAsync(u => u.UserName == solicitudDto.UserName);
+            if (solicitudDto == null)
+            {
+                return BadRequest(new { Success = false, Message = "La solicitud no puede ser nula." });
+            }
 
+            if (string.IsNullOrEmpty(solicitudDto.UserName) || string.IsNullOrEmpty(solicitudDto.Book))
+            {
+                return BadRequest(new { Success = false, Message = "El nombre de usuario y el título del libro son requeridos." });
+            }
+
+            var user = await _context.User.SingleOrDefaultAsync(u => u.UserName == solicitudDto.UserName);
             if (user == null)
             {
                 return BadRequest(new { Success = false, Message = "El usuario no existe." });
             }
 
+            var libroBuscado = solicitudDto.Book.Trim().ToLower();
             var movimientoLibro = await _context.MovimientoLibro
                 .Include(m => m.Book)
-                .FirstOrDefaultAsync(m => m.Book.Tittle == solicitudDto.Book);
+                .FirstOrDefaultAsync(m => m.Book.Tittle.Trim().ToLower() == libroBuscado);
 
             if (movimientoLibro == null)
             {
@@ -100,6 +109,9 @@ namespace Biblioteca.Controllers
         }
 
 
+
+
+
         [HttpGet("obtenerSolicitudes")]
         public async Task<IActionResult> ObtenerSolicitudes([FromQuery] string tipo, [FromQuery] string userName)
         {
@@ -131,22 +143,42 @@ namespace Biblioteca.Controllers
             // Obtener todas las solicitudes de tipo "Pedir" del usuario
             var solicitudesPedir = await _context.Solicitud
                 .Where(s => s.Tipo == "Pedir" && s.UserName == userName)
+                .GroupBy(s => s.Book)
+                .Select(g => new { Book = g.Key, CantidadPedir = g.Count() })
                 .ToListAsync();
 
             // Obtener todas las solicitudes de tipo "Regresar" del usuario
             var solicitudesRegresar = await _context.Solicitud
                 .Where(s => s.Tipo == "Regresar" && s.UserName == userName)
+                .GroupBy(s => s.Book)
+                .Select(g => new { Book = g.Key, CantidadRegresar = g.Count() })
                 .ToListAsync();
 
-            // Filtrar los libros que aún no han sido devueltos completamente
+            // Crear un diccionario para contar las solicitudes de regresar
+            var dictRegresar = solicitudesRegresar.ToDictionary(sr => sr.Book, sr => sr.CantidadRegresar);
+
+            // Filtrar los libros que tienen solicitudes de pedir menos o igual que las solicitudes de regresar
             var librosParaDevolver = solicitudesPedir
+                .Where(sp => !dictRegresar.ContainsKey(sp.Book) || sp.CantidadPedir > dictRegresar[sp.Book])
+                .Select(sp => new { Title = sp.Book })
+                .ToList();
+
+            // Excluir libros que ya fueron devueltos en solicitudes anteriores
+            var librosDevueltos = await _context.Solicitud
+                .Where(s => s.Tipo == "Regresar" && s.UserName == userName)
                 .GroupBy(s => s.Book)
-                .Where(g => g.Count() > solicitudesRegresar.Count(sr => sr.Book == g.Key))
-                .Select(g => new { Title = g.Key })
+                .Select(g => new { Book = g.Key, CantidadDevuelta = g.Count() })
+                .ToListAsync();
+
+            var dictDevueltos = librosDevueltos.ToDictionary(ld => ld.Book, ld => ld.CantidadDevuelta);
+
+            librosParaDevolver = librosParaDevolver
+                .Where(lp => !dictDevueltos.ContainsKey(lp.Title) || dictDevueltos[lp.Title] < solicitudesPedir.FirstOrDefault(sp => sp.Book == lp.Title)?.CantidadPedir)
                 .ToList();
 
             return Ok(new { Success = true, libros = librosParaDevolver });
         }
+
 
     }
 }

@@ -30,6 +30,7 @@ namespace Biblioteca.Repositories.Configurations
             builder.Property(x => x.Gender).HasColumnName("Gender");
             builder.Property(x => x.Year).HasColumnName("Year");
             builder.Property(x => x.Cantidad).HasColumnName("Cantidad");
+            builder.Property(x => x.Imagen).HasColumnName("Imagen");
 
         }
 
