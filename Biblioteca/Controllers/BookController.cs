@@ -30,7 +30,6 @@ namespace Biblioteca.Controllers
 
             _uploadFolder = Path.Combine(env.ContentRootPath, "Imagenes");
 
-            // Verificar si la carpeta de destino existe y crearla si no existe
             if (!Directory.Exists(_uploadFolder))
             {
                 Directory.CreateDirectory(_uploadFolder);
@@ -52,10 +51,7 @@ namespace Biblioteca.Controllers
                 var fileName = Path.GetFileNameWithoutExtension(imageFile.FileName) + extension;
                 var imagePath = Path.Combine(_uploadFolder, fileName);
 
-                // Imprimir la ruta para depuración
-                Console.WriteLine($"Saving image to: {imagePath}");
 
-                // Guardar la imagen en esa carpeta
                 using (var stream = new FileStream(imagePath, FileMode.Create))
                 {
                     await imageFile.CopyToAsync(stream);
@@ -98,18 +94,17 @@ namespace Biblioteca.Controllers
                     Gender = bookDTO.Gender,
                     Year = bookDTO.Year,
                     Cantidad = bookDTO.Cantidad,
-                    Imagen = bookDTO.Imagen // Aquí se guarda el alias en lugar del Base64
+                    Imagen = bookDTO.Imagen 
                 };
 
                 _context.Book.Add(book);
                 await _context.SaveChangesAsync();
 
-                // Crear y agregar un nuevo MovimientoLibro
                 var movimientoLibro = new MovimientoLibro
                 {
                     MovimientoLibroId = Guid.NewGuid(),
                     BookId = book.BookId,
-                    Saldo = book.Cantidad // Saldo se iguala a Cantidad
+                    Saldo = book.Cantidad 
                 };
 
                 _context.MovimientoLibro.Add(movimientoLibro);
@@ -146,7 +141,6 @@ namespace Biblioteca.Controllers
                     return NotFound(new { Success = false, Message = "Libro no encontrado." });
                 }
 
-                // Verificar si el libro ya tiene una imagen y eliminarla si es necesario
                 if (!string.IsNullOrEmpty(book.Imagen))
                 {
                     var oldImagePath = Path.Combine(_uploadFolder, book.Imagen);
@@ -156,19 +150,16 @@ namespace Biblioteca.Controllers
                     }
                 }
 
-                // Usar el nombre original de la imagen
                 var originalFileName = Path.GetFileName(imageFile.FileName);
                 var imagePath = Path.Combine(_uploadFolder, originalFileName);
 
                 Console.WriteLine($"Saving image to: {imagePath}");
 
-                // Guardar la nueva imagen en la carpeta
                 using (var stream = new FileStream(imagePath, FileMode.Create))
                 {
                     await imageFile.CopyToAsync(stream);
                 }
 
-                // Actualizar el libro con el nombre de la nueva imagen
                 book.Imagen = originalFileName;
 
                 _context.Book.Update(book);
@@ -206,14 +197,12 @@ namespace Biblioteca.Controllers
                     return NotFound(new { Success = false, Message = "Libro no encontrado." });
                 }
 
-                // Actualizar los datos del libro
                 book.Tittle = bookDTO.Tittle;
                 book.Author = bookDTO.Author;
                 book.Gender = bookDTO.Gender;
                 book.Year = bookDTO.Year;
                 book.Cantidad = bookDTO.Cantidad;
 
-                // Si el alias de la imagen ha cambiado, se actualiza también
                 if (!string.IsNullOrEmpty(bookDTO.Imagen))
                 {
                     book.Imagen = bookDTO.Imagen;

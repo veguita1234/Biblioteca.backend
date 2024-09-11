@@ -19,12 +19,11 @@ namespace Biblioteca.Controllers
 
 
 
-        // GET para obtener todos los MovimientoLibro
         [HttpGet("getMovimientoLibros")]
         public async Task<IActionResult> GetMovimientoLibros()
         {
             var movimientos = await _context.MovimientoLibro
-                                            .Include(m => m.Book) // Incluir el libro relacionado
+                                            .Include(m => m.Book) 
                                             .ToListAsync();
 
             var movimientosDto = movimientos.Select(m => new
@@ -32,7 +31,7 @@ namespace Biblioteca.Controllers
                 MovimientoLibroId = m.MovimientoLibroId,
                 BookId = m.BookId,
                 Saldo = m.Saldo,
-                BookTitle = m.Book.Tittle, // Ejemplo para acceder a propiedades del libro
+                BookTitle = m.Book.Tittle, 
                 BookAuthor = m.Book.Author
             }).ToList();
 

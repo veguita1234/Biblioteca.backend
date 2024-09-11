@@ -140,14 +140,12 @@ namespace Biblioteca.Controllers
                 return BadRequest(new { Success = false, Message = "El nombre de usuario es requerido." });
             }
 
-            // Obtener todas las solicitudes de tipo "Pedir" del usuario
             var solicitudesPedir = await _context.Solicitud
                 .Where(s => s.Tipo == "Pedir" && s.UserName == userName)
                 .GroupBy(s => s.Book)
                 .Select(g => new { Book = g.Key, CantidadPedir = g.Count() })
                 .ToListAsync();
 
-            // Obtener todas las solicitudes de tipo "Regresar" del usuario
             var solicitudesRegresar = await _context.Solicitud
                 .Where(s => s.Tipo == "Regresar" && s.UserName == userName)
                 .GroupBy(s => s.Book)

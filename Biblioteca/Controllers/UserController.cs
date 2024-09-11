@@ -27,7 +27,6 @@ namespace Biblioteca.Controllers
             _configuration = configuration;
         }
 
-        // Método para encriptar la contraseña
         private string Encripter(string texto)
         {
             using (SHA512 sha512 = SHA512.Create())
@@ -37,7 +36,7 @@ namespace Biblioteca.Controllers
             }
         }
 
-        // Método para generar JWT Token usando UserDTO
+
         private LoginResponseDTO GenerateToken(UserDTO user)
         {
             var expires = DateTime.UtcNow.AddHours(16);
@@ -46,7 +45,7 @@ namespace Biblioteca.Controllers
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim("Name", user.Name ?? string.Empty),
                 new Claim("LastName", user.LastName ?? string.Empty),
-                new Claim("Tipo", user.Tipo ?? string.Empty) // Incluimos el tipo de usuario en el token
+                new Claim("Tipo", user.Tipo ?? string.Empty) 
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtKey"]));
@@ -69,7 +68,6 @@ namespace Biblioteca.Controllers
             };
         }
 
-        // Método para realizar el login
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequestDTO loginDto)
         {
@@ -85,7 +83,6 @@ namespace Biblioteca.Controllers
                 return Unauthorized(new { Success = false, Message = "Contraseña incorrecta." });
             }
 
-            // Mapeo manual de User a UserDTO
             var userDto = new UserDTO
             {
                 UserId = user.UserId,
@@ -95,10 +92,9 @@ namespace Biblioteca.Controllers
                 Email = user.Email,
                 DNI = user.DNI,
                 UserName = user.UserName,
-                Password = user.Password // Aunque normalmente no deberías enviar la contraseña
+                Password = user.Password 
             };
 
-            // Generar el token usando UserDTO
             var tokenResponse = GenerateToken(userDto);
 
             return Ok(new
@@ -112,23 +108,18 @@ namespace Biblioteca.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserDTO userDto)
         {
-            // Validar si el nombre ya está en uso
             if (await _context.User.AnyAsync(u => u.Name == userDto.Name))
                 return BadRequest(new { Success = false, Field = "name", Message = "El nombre ya está en uso." });
 
-            // Validar si el email ya está en uso
             if (await _context.User.AnyAsync(u => u.Email == userDto.Email))
                 return BadRequest(new { Success = false, Field = "email", Message = "El email ya está en uso." });
 
-            // Validar si el DNI ya está en uso
             if (await _context.User.AnyAsync(u => u.DNI == userDto.DNI))
                 return BadRequest(new { Success = false, Field = "dni", Message = "El DNI ya está en uso." });
 
-            // Validar si el nombre de usuario ya está en uso
             if (await _context.User.AnyAsync(u => u.UserName == userDto.UserName))
                 return BadRequest(new { Success = false, Field = "userName", Message = "El nombre de usuario ya está en uso." });
 
-            // Convertir de UserDTO a la entidad User
             var user = new User
             {
                 UserId = Guid.NewGuid(),
@@ -141,7 +132,6 @@ namespace Biblioteca.Controllers
                 Password = Encripter(userDto.Password)
             };
 
-            // Guardar el usuario en la base de datos
             _context.User.Add(user);
             await _context.SaveChangesAsync();
 
@@ -156,10 +146,8 @@ namespace Biblioteca.Controllers
         {
             try
             {
-                // Obtener todos los usuarios de la base de datos
                 var users = await _context.User.ToListAsync();
 
-                // Convertir los usuarios a UserDTO
                 var userDtos = users.Select(u => new UserDTO
                 {
                     UserId = u.UserId,
@@ -179,7 +167,6 @@ namespace Biblioteca.Controllers
             }
             catch (Exception ex)
             {
-                // Manejar cualquier error que pueda ocurrir
                 return StatusCode(StatusCodes.Status500InternalServerError, new
                 {
                     Success = false,
