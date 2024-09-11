@@ -6,7 +6,7 @@ using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
 builder.Services.AddControllers();
 
 // CORS POLITICA
@@ -15,10 +15,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigin",
         builder =>
         {
-            builder.WithOrigins("http://localhost:3000") // Permite solicitudes desde este origen
+            builder.WithOrigins("http://localhost:3000") 
                    .AllowAnyMethod()
                    .AllowAnyHeader()
-                   .AllowCredentials(); // Permite el uso de credenciales
+                   .AllowCredentials();
         });
 });
 
@@ -39,19 +39,16 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Biblioteca API", Version = "v1" });
 
-    // Añadir el filtro para soportar `multipart/form-data`
     c.OperationFilter<SwaggerFileUploadFilter>();
 });
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// **Agrega la política de CORS aquí** 
 app.UseCors("AllowSpecificOrigin");
 
 app.UseAuthorization();
