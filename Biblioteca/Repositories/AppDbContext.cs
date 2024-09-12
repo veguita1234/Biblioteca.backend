@@ -18,11 +18,11 @@ namespace Biblioteca.Repositories
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()
-                .ToTable("User");
+                .ToTable("User", "biblioteca");
 
             modelBuilder.Entity<Book>()
-        .ToTable("Book")
-        .HasKey(b => b.BookId);
+                .ToTable("Book", "biblioteca")
+                .HasKey(b => b.BookId);
 
             modelBuilder.Entity<Book>()
                 .Property(b => b.BookId)
@@ -53,7 +53,10 @@ namespace Biblioteca.Repositories
                 .HasColumnName("Imagen");
 
             modelBuilder.Entity<Solicitud>()
-                .ToTable("Solicitud");
+                .ToTable("Solicitud", "biblioteca");
+
+            modelBuilder.Entity<MovimientoLibro>()
+           .ToTable("MovimientoLibro", "biblioteca");
 
             modelBuilder.Entity<MovimientoLibro>()
             .HasOne(m => m.Book)
