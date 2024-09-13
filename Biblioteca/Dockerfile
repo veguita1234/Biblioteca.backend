@@ -9,7 +9,8 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 #ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Biblioteca/Biblioteca.csproj", "Biblioteca/"]
-RUN dotnet restore "./Biblioteca/./Biblioteca.csproj"
+#RUN dotnet restore "./Biblioteca/./Biblioteca.csproj"
+RUN dotnet restore "Biblioteca/Biblioteca.csproj"
 COPY . .
 WORKDIR "/src/Biblioteca"
 #RUN dotnet build "./Biblioteca.csproj" -c $BUILD_CONFIGURATION -o /app/build
