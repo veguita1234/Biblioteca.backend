@@ -12,13 +12,12 @@ builder.Services.AddControllers();
 // CORS POLITICA
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigin",
+    options.AddPolicy("AllowAllOrigins",
         builder =>
         {
-            builder.WithOrigins("http://localhost:3000") 
-                   .AllowAnyMethod()
+            builder.AllowAnyOrigin()
                    .AllowAnyHeader()
-                   .AllowCredentials();
+                   .AllowAnyMethod();
         });
 });
 
@@ -49,7 +48,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowSpecificOrigin");
+app.UseCors("AllowAllOrigins");
 
 app.UseAuthorization();
 
