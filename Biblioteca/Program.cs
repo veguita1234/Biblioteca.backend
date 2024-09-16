@@ -12,24 +12,23 @@ builder.Services.AddControllers();
 // CORS POLITICA
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigin",
+    options.AddPolicy("AllowAllOrigins",
         builder =>
         {
-            builder.WithOrigins("http://localhost:3000") 
-                   .AllowAnyMethod()
+            builder.AllowAnyOrigin()
                    .AllowAnyHeader()
-                   .AllowCredentials();
+                   .AllowAnyMethod();
         });
 });
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("Connection"),
-        sqlServerOptions => sqlServerOptions.EnableRetryOnFailure(
-            maxRetryCount: 10,
-            maxRetryDelay: TimeSpan.FromSeconds(30),
-            errorNumbersToAdd: null
-        )
+        builder.Configuration.GetConnectionString("Connection")
+        //sqlServerOptions => sqlServerOptions.EnableRetryOnFailure(
+        //    maxRetryCount: 10,
+        //    maxRetryDelay: TimeSpan.FromSeconds(30),
+        //    errorNumbersToAdd: null
+        //)
     ),
     ServiceLifetime.Scoped);
 
@@ -49,7 +48,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowSpecificOrigin");
+app.UseCors("AllowAllOrigins");
 
 app.UseAuthorization();
 
