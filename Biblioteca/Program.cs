@@ -24,12 +24,12 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("Connection"),
-        sqlServerOptions => sqlServerOptions.EnableRetryOnFailure(
-            maxRetryCount: 10,
-            maxRetryDelay: TimeSpan.FromSeconds(30),
-            errorNumbersToAdd: null
-        )
+        builder.Configuration.GetConnectionString("Connection")
+        //sqlServerOptions => sqlServerOptions.EnableRetryOnFailure(
+        //    maxRetryCount: 10,
+        //    maxRetryDelay: TimeSpan.FromSeconds(30),
+        //    errorNumbersToAdd: null
+        //)
     ),
     ServiceLifetime.Scoped);
 
