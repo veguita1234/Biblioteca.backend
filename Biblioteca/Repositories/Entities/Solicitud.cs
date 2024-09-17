@@ -10,6 +10,8 @@ namespace Biblioteca.Repositories.Entities
         public DateTime Date {  get; set; }
         public string UserName { get; set; }
         public string Book { get; set; }
+        public string? Gender { get; set; }
         public string? Observation { get; set; }
+
     }
 }
