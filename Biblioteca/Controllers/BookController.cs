@@ -293,6 +293,41 @@ namespace Biblioteca.Controllers
             }
         }
 
+        [HttpGet("book/{id}")]
+        public async Task<IActionResult> GetBookById(Guid id)
+        {
+            try
+            {
+                var book = await _context.Book.FindAsync(id);
+
+                if (book == null)
+                {
+                    return NotFound(new { Success = false, Message = "Libro no encontrado." });
+                }
+
+                var bookDto = new BookDTO
+                {
+                    BookId = book.BookId,
+                    Tittle = book.Tittle,
+                    Author = book.Author,
+                    Gender = book.Gender,
+                    Year = book.Year,
+                    Cantidad = book.Cantidad,
+                    Imagen = book.Imagen
+                };
+
+                return Ok(new { Success = true, Book = bookDto });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    Success = false,
+                    Message = "Se produjo un error al obtener el libro.",
+                    Error = ex.Message
+                });
+            }
+        }
 
 
 
