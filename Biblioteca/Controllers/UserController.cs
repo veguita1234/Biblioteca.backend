@@ -176,5 +176,52 @@ namespace Biblioteca.Controllers
             }
         }
 
+        [HttpGet("users/filter")]
+        public async Task<IActionResult> GetUsersByUserName([FromQuery] string searchTerm)
+        {
+            try
+            {
+                var query = _context.User.AsQueryable();
+
+                if (!string.IsNullOrEmpty(searchTerm))
+                {
+                    // Convierte el término de búsqueda y el UserName a minúsculas para la comparación
+                    searchTerm = searchTerm.ToLower();
+                    query = query.Where(u => u.UserName.ToLower().Contains(searchTerm));
+                }
+
+                var users = await query.ToListAsync();
+
+                var userDtos = users.Select(u => new UserDTO
+                {
+                    UserId = u.UserId,
+                    Tipo = u.Tipo,
+                    Name = u.Name,
+                    LastName = u.LastName,
+                    Email = u.Email,
+                    DNI = u.DNI,
+                    UserName = u.UserName
+                }).ToList();
+
+                return Ok(new
+                {
+                    Success = true,
+                    Users = userDtos
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    Success = false,
+                    Message = "Se produjo un error al obtener los usuarios filtrados.",
+                    Error = ex.Message
+                });
+            }
+        }
+
+
+
+
     }
 }

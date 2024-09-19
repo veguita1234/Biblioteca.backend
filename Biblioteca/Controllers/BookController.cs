@@ -327,6 +327,56 @@ namespace Biblioteca.Controllers
                     Error = ex.Message
                 });
             }
+
+
+        }
+
+        [HttpGet("books/filter")]
+        public async Task<IActionResult> GetBooksByFilter([FromQuery] string searchTerm)
+        {
+            try
+            {
+                var query = _context.Book.AsQueryable();
+
+                if (!string.IsNullOrEmpty(searchTerm))
+                {
+                    // Convierte el término de búsqueda a minúsculas para la comparación
+                    searchTerm = searchTerm.ToLower();
+                    query = query.Where(b =>
+                        b.Tittle.ToLower().Contains(searchTerm) ||
+                        (b.Author != null && b.Author.ToLower().Contains(searchTerm)) ||
+                        b.Gender.ToLower().Contains(searchTerm)
+                    );
+                }
+
+                var books = await query.ToListAsync();
+
+                var bookDtos = books.Select(b => new BookDTO
+                {
+                    BookId = b.BookId,
+                    Tittle = b.Tittle,
+                    Author = b.Author,
+                    Gender = b.Gender,
+                    Year = b.Year,
+                    Cantidad = b.Cantidad,
+                    Imagen = b.Imagen
+                }).ToList();
+
+                return Ok(new
+                {
+                    Success = true,
+                    Books = bookDtos
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    Success = false,
+                    Message = "Se produjo un error al obtener los libros filtrados.",
+                    Error = ex.Message
+                });
+            }
         }
 
 

@@ -207,6 +207,36 @@ namespace Biblioteca.Controllers
         }
 
 
+        [HttpGet("verificarPedidoLibro")]
+        public async Task<IActionResult> VerificarPedidoLibro([FromQuery] string userName, [FromQuery] string bookTitle, [FromQuery] string bookGender)
+        {
+            if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(bookTitle) || string.IsNullOrEmpty(bookGender))
+            {
+                return BadRequest(new { Success = false, Message = "El nombre de usuario, título y género del libro son requeridos." });
+            }
+
+            // Busca libros que el usuario haya pedido pero aún no ha regresado.
+            var solicitudesPendientes = await _context.Solicitud
+                .Where(s => s.UserName == userName && s.Book == bookTitle && s.Gender == bookGender && s.Tipo == "Pedir")
+                .ToListAsync();
+
+            var solicitudesRegresadas = await _context.Solicitud
+                .Where(s => s.UserName == userName && s.Book == bookTitle && s.Gender == bookGender && s.Tipo == "Regresar")
+                .ToListAsync();
+
+            // Contamos cuántos libros ha pedido y cuántos ha devuelto.
+            int librosPedidos = solicitudesPendientes.Count;
+            int librosRegresados = solicitudesRegresadas.Count;
+
+            // Si ha pedido más libros de los que ha devuelto, no puede pedir otro.
+            if (librosPedidos > librosRegresados)
+            {
+                return Ok(new { Success = false, Message = $"El usuario {userName} ya tiene pendiente la devolución del libro '{bookTitle}' de género '{bookGender}', por lo que no puede solicitar otro ejemplar hasta que lo devuelva." });
+            }
+
+            // Si no hay libros pendientes, puede pedir el libro.
+            return Ok(new { Success = true, Message = $"El usuario {userName} puede solicitar el libro '{bookTitle}' de género '{bookGender}'." });
+        }
 
 
 
