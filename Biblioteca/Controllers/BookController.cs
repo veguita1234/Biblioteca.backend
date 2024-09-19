@@ -37,24 +37,90 @@ namespace Biblioteca.Controllers
         }
 
 
+        //[HttpPost("uploadbookimage")]
+        //public async Task<IActionResult> UploadBookImage([FromForm] IFormFile imageFile)
+        //{
+        //    if (imageFile == null || imageFile.Length == 0)
+        //    {
+        //        return BadRequest(new { Success = false, Message = "No se proporcionó ninguna imagen." });
+        //    }
+
+        //    try
+        //    {
+        //        var extension = Path.GetExtension(imageFile.FileName);
+        //        var fileName = Path.GetFileNameWithoutExtension(imageFile.FileName) + extension;
+        //        var imagePath = Path.Combine(_uploadFolder, fileName);
+
+
+        //        using (var stream = new FileStream(imagePath, FileMode.Create))
+        //        {
+        //            await imageFile.CopyToAsync(stream);
+        //        }
+
+        //        return Ok(new { Success = true, FileName = fileName });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(StatusCodes.Status500InternalServerError, new
+        //        {
+        //            Success = false,
+        //            Message = "Error al cargar la imagen.",
+        //            Error = ex.Message
+        //        });
+        //    }
+        //}
+
+
         [HttpPost("uploadbookimage")]
-        public async Task<IActionResult> UploadBookImage([FromForm] IFormFile imageFile)
+        public async Task<IActionResult> UploadBookImage([FromForm] BookImageDTO bookImageDTO)
         {
-            if (imageFile == null || imageFile.Length == 0)
+            // Validar que solo uno de los dos campos esté presente, pero no ambos.
+            if (bookImageDTO.ImageFile != null && !string.IsNullOrEmpty(bookImageDTO.ImageUrl))
             {
-                return BadRequest(new { Success = false, Message = "No se proporcionó ninguna imagen." });
+                return BadRequest(new { Success = false, Message = "Solo puede proporcionar un archivo o una URL, no ambos." });
+            }
+
+            // Validar que al menos uno de los dos esté presente.
+            if (bookImageDTO.ImageFile == null && string.IsNullOrEmpty(bookImageDTO.ImageUrl))
+            {
+                return BadRequest(new { Success = false, Message = "Debe proporcionar una imagen o una URL." });
             }
 
             try
             {
-                var extension = Path.GetExtension(imageFile.FileName);
-                var fileName = Path.GetFileNameWithoutExtension(imageFile.FileName) + extension;
-                var imagePath = Path.Combine(_uploadFolder, fileName);
+                string fileName = string.Empty;
 
-
-                using (var stream = new FileStream(imagePath, FileMode.Create))
+                // Si se proporciona un archivo, lo guardamos localmente
+                if (bookImageDTO.ImageFile != null)
                 {
-                    await imageFile.CopyToAsync(stream);
+                    var extension = Path.GetExtension(bookImageDTO.ImageFile.FileName);
+                    fileName = Path.GetFileNameWithoutExtension(bookImageDTO.ImageFile.FileName) + extension;
+                    var imagePath = Path.Combine(_uploadFolder, fileName);
+
+                    using (var stream = new FileStream(imagePath, FileMode.Create))
+                    {
+                        await bookImageDTO.ImageFile.CopyToAsync(stream);
+                    }
+                }
+                // Si se proporciona una URL, la descargamos y la guardamos localmente
+                else if (!string.IsNullOrEmpty(bookImageDTO.ImageUrl))
+                {
+                    var uri = new Uri(bookImageDTO.ImageUrl);
+                    fileName = Path.GetFileName(uri.LocalPath);
+                    var imagePath = Path.Combine(_uploadFolder, fileName);
+
+                    using (var client = new HttpClient())
+                    {
+                        var response = await client.GetAsync(uri);
+
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            return BadRequest(new { Success = false, Message = "No se pudo descargar la imagen desde la URL proporcionada." });
+                        }
+
+                        var imageBytes = await response.Content.ReadAsByteArrayAsync();
+                        await System.IO.File.WriteAllBytesAsync(imagePath, imageBytes);
+                    }
                 }
 
                 return Ok(new { Success = true, FileName = fileName });
@@ -75,7 +141,6 @@ namespace Biblioteca.Controllers
 
 
 
-
         [HttpPost("addbookdata")]
         public async Task<IActionResult> AddBookData(BookDTO bookDTO)
         {
@@ -86,6 +151,7 @@ namespace Biblioteca.Controllers
 
             try
             {
+
                 var book = new Book
                 {
                     BookId = Guid.NewGuid(),
@@ -257,6 +323,14 @@ namespace Biblioteca.Controllers
 
 
 
+        private string GetFileNameFromUrl(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+                return null;
+
+            // Extrae el nombre del archivo de la URL
+            return url.Substring(url.LastIndexOf('/') + 1);
+        }
 
         [HttpGet("books")]
         public async Task<IActionResult> GetAllBooks()
@@ -273,7 +347,7 @@ namespace Biblioteca.Controllers
                     Gender = u.Gender,
                     Year = u.Year,
                     Cantidad = u.Cantidad,
-                    Imagen = u.Imagen 
+                    Imagen = GetFileNameFromUrl(u.Imagen)
                 }).ToList();
 
                 return Ok(new

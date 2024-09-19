@@ -12,6 +12,7 @@ namespace Biblioteca.DTOs
         public string Year { get; set; }
         public int Cantidad { get; set; }
         public string Imagen { get; set; }
+
         
     }
 }
